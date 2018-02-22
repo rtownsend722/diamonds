@@ -3,7 +3,8 @@
   <head>
     <meta charset="utf-8">
     <script src="https://d3js.org/d3.v3.min.js"></script>
-    <script src="https://d3js.org/d3-force.v1.min.js"></script>
+    <script src="https://d3js.org/d3-force.v1.min.js">
+    </script>
     <script src="/lesmis.json"></script>
     <title>Les Miserables</title>
     <style>
@@ -11,7 +12,7 @@
     </style>
   </head>
   <body>
-    <div>HELLO WORLD</div>
+
     <script>
 
 
@@ -20,6 +21,11 @@
 
     const nodes = window.data.nodes;
     const links = window.data.links;
+
+    const pastels = d3.scale.ordinal()
+      .range(['#EAF7CF', '#EBEFBF', '#CEB5A7', '#92828D', '#ADAABF', '#6A3937', '#9EBC9E', '#553E4E', '#D5DFE5'])
+      .domain([0,8]);
+
     links.forEach(link => {
       nodes.forEach(node => {
         if (node.id === link.source) {
@@ -32,28 +38,33 @@
         }
       });
     });
-    console.log(nodes);
-    console.log(links);
 
     var svg = d3.select('body').append('svg')
       .attr('width', width)
       .attr('height', height);
 
     var force = d3.layout.force()
-      .size([width, height])
+        .size([width, height])
         .nodes(d3.values(nodes))
-        .links(links);
-
-    force.start();
+        .links(links)
+        .linkDistance(link => link.value * 30)
+        .gravity(0.05)
+        .charge(-100)
+        .start();
 
     var node = svg.selectAll('circle')
       .data(nodes)
       .enter().append('circle')
-      .attr('r', 5);
+      .attr('r', d => (Math.random() * 20) + 5)
+      .attr('fill', d => pastels(d.group));
+
+    node.append('title')
+      .text(d => d.id);
 
     var link = svg.selectAll('line')
       .data(links)
-      .enter().append('line');
+      .enter().append('line')
+      .attr('stroke', 'none');
 
 
     force.on('tick', () => {
