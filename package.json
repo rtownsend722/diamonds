@@ -1,0 +1,14 @@
+{
+  "name": "diamonds",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "author": "Rebecca Townsend",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.2"
+  }
+}
