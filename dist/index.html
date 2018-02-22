@@ -8,6 +8,13 @@
     <script src="/lesmis.json"></script>
     <title>Les Miserables</title>
     <style>
+      body {
+        width: 50vw;
+        height: 20vh;;
+        transform: translateY(20);
+        transform: translateX(70);
+      }
+
 
     </style>
   </head>
@@ -16,8 +23,8 @@
     <script>
 
 
-    const height = 960;
-    const width = 1060;
+    const height = 850;
+    const width = 900;
 
     const nodes = window.data.nodes;
     const links = window.data.links;
@@ -47,16 +54,41 @@
         .size([width, height])
         .nodes(d3.values(nodes))
         .links(links)
-        .linkDistance(link => link.value * 30)
+        .linkDistance(100)
         .gravity(0.05)
         .charge(-100)
         .start();
 
+    var drag = d3.behavior.drag()
+      .on('dragstart', dragstart)
+      .on('drag', dragmove)
+      .on('dragend', dragend);
+
+    function dragstart(d, i) {
+      force.stop();
+    }
+
+    function dragmove(d, i) {
+      d.px += d3.event.dx;
+      d.py += d3.event.dy;
+      d.x += d3.event.dx;
+      d.y += d3.event.dy;
+      tick();
+    }
+
+    function dragend(d, i) {
+      d.fixed = false;
+      tick();
+      force.resume();
+    }
+
     var node = svg.selectAll('circle')
       .data(nodes)
       .enter().append('circle')
-      .attr('r', d => (Math.random() * 20) + 5)
-      .attr('fill', d => pastels(d.group));
+      .attr('class', 'character')
+      .attr('r', d => 15)
+      .attr('fill', d => pastels(d.group))
+      .call(drag);
 
     node.append('title')
       .text(d => d.id);
@@ -64,18 +96,36 @@
     var link = svg.selectAll('line')
       .data(links)
       .enter().append('line')
-      .attr('stroke', 'none');
+      .attr('stroke', '#D4F2DB')
+      .style('stroke-opacity', '0.5');
 
-
-    force.on('tick', () => {
+    function tick() {
       node.attr('cx', d => d.x)
       .attr('cy', d => d.y);
+
+      // node.attr('transform', d => 'translate(' + d.x + ',' + d.y + ')');
 
       link.attr('x1', d => d.source.x)
         .attr('y1', d => d.source.y)
         .attr('x2', d => d.target.x)
         .attr('y2', d => d.target.y); 
+    }
 
+    force.on('tick', tick);
+
+    let characters = document.querySelectorAll('.character');
+
+    function growCircle(e) {
+      d3.select(this).attr('r', 30);
+    }
+
+    function shrinkCircle(e) {
+      d3.select(this).attr('r', 15);
+    }
+
+    characters.forEach(character => {
+      character.addEventListener('mouseenter', growCircle);
+      character.addEventListener('mouseleave', shrinkCircle);
     });
 
     </script>
